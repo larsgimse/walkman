@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Walkman</title>
+<style>
+:root{--bg:#e9e1d3;--bg2:#d6cbb6;--ink:#2a2a2a;--body1:#ffb81c;--body2:#e8890c;--steel1:#e6e8ea;--steel2:#9aa0a6;--dark:#1b1b1d;--accent:#e63946;--lcd:#1db954;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1a17;--bg2:#2c2822;--ink:#eee}}
+:root[data-theme="dark"]{--bg:#1c1a17;--bg2:#2c2822;--ink:#eee}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 14px;
+background:radial-gradient(circle at 30% 20%,var(--bg),var(--bg2));color:var(--ink);font-family:"Helvetica Neue",Arial,sans-serif}
+.wm{width:100%;max-width:440px;border-radius:26px;padding:18px 18px 22px;position:relative;
+background:linear-gradient(160deg,var(--body1),var(--body2));
+box-shadow:0 30px 50px rgba(0,0,0,.35),inset 0 2px 3px rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.25)}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.brand{font-weight:900;letter-spacing:.14em;font-size:20px;color:#1b1b1d;font-style:italic}
+.brand small{display:block;font-size:9px;letter-spacing:.3em;font-style:normal;font-weight:700;opacity:.7}
+.led{width:12px;height:12px;border-radius:50%;background:#5a1a1a;box-shadow:inset 0 1px 2px #000}
+.on .led{background:#ff3b3b;box-shadow:0 0 10px #ff3b3b,inset 0 1px 2px #fff6}
+.deck{border-radius:14px;padding:12px;background:linear-gradient(180deg,var(--steel1),var(--steel2));box-shadow:inset 0 2px 4px rgba(0,0,0,.35)}
+.window{background:#0d0d0e;border-radius:10px;padding:12px;box-shadow:inset 0 3px 8px #000}
+.cass{background:linear-gradient(180deg,#f4efe2,#d9d1bd);border-radius:8px;padding:10px;position:relative}
+.label{background:#fff;border-radius:4px;padding:5px 8px;font:700 12px/1.2 "Courier New",monospace;color:#222;display:flex;justify-content:space-between;border-bottom:3px solid var(--accent)}
+.reels{display:flex;justify-content:space-around;align-items:center;margin-top:8px;background:#151517;border-radius:30px;padding:8px 6px}
+.reel{width:64px;height:64px;animation:spin 2.4s linear infinite;animation-play-state:paused}
+.on .reel{animation-play-state:running}
+.ff .reel{animation-duration:.5s}
+.rw .reel{animation-duration:.5s;animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tape{height:6px;flex:1;margin:0 -4px;background:#3a2a1f;border-radius:3px}
+.lcd{margin:12px 0 6px;border-radius:8px;background:#0e1a12;padding:8px;box-shadow:inset 0 2px 6px #000;position:relative;min-height:168px}
+.lcd iframe{width:100%;height:152px;border:0;border-radius:8px;display:block;background:#0e1a12}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;color:var(--lcd);font:12px "Courier New",monospace;letter-spacing:.08em;pointer-events:none}
+.btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.btn{height:54px;border:0;border-radius:8px 8px 12px 12px;cursor:pointer;font-size:20px;color:#222;
+background:linear-gradient(180deg,#f2f2f2,#a9adb2);box-shadow:0 5px 0 #6c7075,0 7px 8px rgba(0,0,0,.4);transition:transform .08s,box-shadow .08s}
+.btn:active,.btn.act{transform:translateY(4px);box-shadow:0 1px 0 #6c7075}
+.btn.play{background:linear-gradient(180deg,#ff6b6b,var(--accent));color:#fff}
+.in{display:flex;gap:8px;margin-top:16px}
+.in input{flex:1;min-width:0;border:0;border-radius:8px;padding:11px 12px;font-size:14px;background:#fffbe9;color:#222;box-shadow:inset 0 2px 4px rgba(0,0,0,.3)}
+.in button{border:0;border-radius:8px;padding:0 16px;font-weight:800;background:#1b1b1d;color:#fff;cursor:pointer}
+.tapes{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tapes button{border:0;border-radius:4px;padding:6px 9px;font:700 11px "Courier New",monospace;background:#f4efe2;color:#222;cursor:pointer;border-bottom:3px solid var(--accent)}
+.tapes button:hover{background:#fff}
+.note{margin:14px 2px 0;font-size:11px;line-height:1.45;color:#1b1b1d;opacity:.8}
+.note a{color:inherit}
+.grille{position:absolute;right:18px;bottom:62px;width:0}
+</style>
+</head>
+<body>
+<main class="wm" id="wm">
+  <div class="top">
+    <div class="brand">WALKMAN<small>STEREO CASSETTE PLAYER</small></div>
+    <div class="led" title="Strøm"></div>
+  </div>
+
+  <div class="deck">
+    <div class="window">
+      <div class="cass">
+        <div class="label"><span id="lt">SIDE A</span><span>C-60</span></div>
+        <div class="reels">
+          <svg class="reel" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#2b2b2e"/><circle cx="32" cy="32" r="22" fill="#e9e4d6"/><g stroke="#2b2b2e" stroke-width="5"><path d="M32 12v12M32 40v12M12 32h12M40 32h12"/></g><circle cx="32" cy="32" r="7" fill="#151517"/></svg>
+          <div class="tape"></div>
+          <svg class="reel" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#2b2b2e"/><circle cx="32" cy="32" r="22" fill="#e9e4d6"/><g stroke="#2b2b2e" stroke-width="5"><path d="M32 12v12M32 40v12M12 32h12M40 32h12"/></g><circle cx="32" cy="32" r="7" fill="#151517"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="lcd">
+      <div id="player"></div>
+      <div class="empty" id="empty">▮ LIM INN EN SPOTIFY-LENKE ELLER VELG EN KASSETT ▮</div>
+    </div>
+  </div>
+
+  <div class="btns">
+    <button class="btn" id="rw" aria-label="Spol tilbake">◀◀</button>
+    <button class="btn play" id="play" aria-label="Spill / pause">▶</button>
+    <button class="btn" id="ffb" aria-label="Spol fremover">▶▶</button>
+    <button class="btn" id="stop" aria-label="Stopp">■</button>
+  </div>
+
+  <form class="in" id="f" onsubmit="return false">
+    <input id="url" placeholder="Lim inn Spotify-lenke (spor, album, spilleliste …)" autocomplete="off">
+    <button id="go" type="button">SETT INN</button>
+  </form>
+
+  <div class="tapes" id="tapes"></div>
+
+  <p class="note">Tips: Spotify spiller av i selve avspilleren over. Er du logget inn på Spotify i nettleseren, får du hele låter – ellers blir det 30-sekunders smakebiter. Hjulene og knappene her er for stemningens skyld.</p>
+</main>
+
+<script>
+(function(){
+  var wm=document.getElementById('wm'),player=document.getElementById('player'),empty=document.getElementById('empty'),
+      inp=document.getElementById('url'),lt=document.getElementById('lt');
+  var presets=[["TOP HITS","playlist","37i9dQZF1DXcBWIGoYBM5M"],["LO-FI","playlist","37i9dQZF1DWWQRwui0ExPn"],["PIANO","playlist","37i9dQZF1DX4sWSpwq3LiO"],["RAP","playlist","37i9dQZF1DX0XUsuxWHRQd"]];
+  var tapes=document.getElementById('tapes');
+  presets.forEach(function(p){var b=document.createElement('button');b.textContent=p[0];b.onclick=function(){load(p[1],p[2],p[0])};tapes.appendChild(b)});
+
+  function parse(s){
+    s=(s||'').trim();
+    var m=s.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode|show|artist)\/([A-Za-z0-9]+)/i)||s.match(/^spotify:(track|album|playlist|episode|show|artist):([A-Za-z0-9]+)/i);
+    return m?[m[1].toLowerCase(),m[2]]:null;
+  }
+  function load(type,id,name){
+    player.innerHTML='';
+    var f=document.createElement('iframe');
+    f.src='https://open.spotify.com/embed/'+type+'/'+id+'?theme=0';
+    f.allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    f.loading='lazy';f.title='Spotify';
+    player.appendChild(f);
+    empty.style.display='none';
+    lt.textContent=(name||type).toUpperCase().slice(0,14);
+    try{localStorage.setItem('wm-last',JSON.stringify([type,id,name||type]))}catch(e){}
+    setPlay(true);
+  }
+  function setPlay(on){wm.classList.toggle('on',on);document.getElementById('play').textContent=on?'❚❚':'▶'}
+  function burst(cls){wm.classList.add(cls);setTimeout(function(){wm.classList.remove(cls)},1200)}
+
+  document.getElementById('go').onclick=function(){
+    var r=parse(inp.value);
+    if(!r){inp.value='';inp.placeholder='Ugyldig lenke – prøv igjen';return}
+    load(r[0],r[1]);
+  };
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('go').click()});
+  document.getElementById('play').onclick=function(){setPlay(!wm.classList.contains('on'))};
+  document.getElementById('stop').onclick=function(){setPlay(false)};
+  document.getElementById('ffb').onclick=function(){burst('ff')};
+  document.getElementById('rw').onclick=function(){burst('rw')};
+
+  try{var l=JSON.parse(localStorage.getItem('wm-last')||'null');if(l){load(l[0],l[1],l[2]);setPlay(false)}}catch(e){}
+})();
+</script>
+</body>
+</html>
